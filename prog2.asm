@@ -135,9 +135,14 @@ GETC	;Read character from keyboard to monitor
 	JSR PUSH
 
 INVALID
-	;; needs code	
+	LEA R1, MESSAGE	;point to the start of the string
+ERROR_MESSAGE	
+	LDR R0, R1, #0  ;put ascii values of the string into R0
+	BRz DONE	;HALT if null character is found
+	OUT
+	ADD R1, R1, #1	;increment pointer
+	BRnzp ERROR_MESSAGE
 	
-
 ;your code goes here
 
 
@@ -147,21 +152,36 @@ INVALID
 PLUS	
 ;your code goes here
 	ADD R0, R3, R4;
+	;code to branch to next part of program
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4
 ;out R0
 MIN	
 ;your code goes here
-	NOT R3, R3,
-	ADD R3, R3, #1
+	NOT R4, R4 ;assuning it is R3-R4
+	ADD R4, R4, #1
 	ADD R0, R3, R4
+	;code to branch to next part of program
+	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4
 ;out R0
 MUL	
 ;your code goes here
-	AND R0, R0, #0
-	ADD R0, R3, R0
+	AND R0, R0, #0; clear R0
+	ADD R3, R3, #0; set cc for R3
+	BRz MULT_ZERO	;multiply by zero case
+MULT_NONZERO
+	ADD R3, R3, #-1; set cc for R3 for cases other that multiply by 0
+	Brz MULT_DONE	; when multiplication counter is 0, finish subroutine
+	ADD R4, R4, R4; implement multiplication loop
+	BRnzp MULT_NONZERO
+MULT_ZERO
+	ADD R0,R0, #0; account for multiply by zero case
+	; go to next part of program
+MULT_DONE
+	ADD R0, R4, #0; place result in R0
+	;code to branch to next part of program
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4
@@ -245,7 +265,7 @@ NEG_DIVIDE	.FILL FFD1
 NEG_SUBTRACT	.FILL FFD3
 NEG_EXPONENT	.FILL FFA3
 
-.STRINGZ "Invalid Expression"
+MESSAGE     .STRINGZ "Invalid Expression"
 
 POP_SaveR3	.BLKW #1	; 
 POP_SaveR4	.BLKW #1	;
