@@ -186,16 +186,56 @@ MULT_DONE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4
 ;out R0
-;DIV	
+DIV	
 ;your code goes here
-	
-	
+	AND R0, R0, #0; clear R0
+	ADD R4, R4, #0; set cc for divide by zero case
+	BRz INVALID	; print error message if the input is invalid
+	NOT R4, R4	; find inverse of the second input	
+	ADD R4, R4, #-1	;R4<- -R4
+DIV_LOOP
+	ADD R3, R3, R4	; 
+	BRnz	DONE_DIV ; division is done when 
+	ADD R0, R0, #1 ; increment R0 for each time difference between R3 and R4 is positve
+	BRnzp DIV_LOOP
+DONE_DIV
+	;code to branch to next part of the program
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4
 ;out R0
-;EXP
+EXP
 ;your code goes here
+;; R4 is power
+	AND R6, R6, #0; clear R6 as a temp register
+	AND R0, R0, #0	;clear R0
+	ADD R4, R4, #0; check value of power
+	BRz ZERO_POWER
+	ADD R4, R4, #-1; check for one power case
+	BRz ONE_POWER
+	ADD R4, R4, #1; Restore value for R4
+	ADD R0, R3, #0; copy R3 into R0
+	ADD R6, R3, #0; copy R3 into R6 for other uses
+POWER_LOOP
+	ADD R4, R4, #0; set cc for power reg
+	BRz ;; code to next part of program
+	ADD R4, R4, #-1; decrement counter
+	AND R3, R3, #0; clear and restore R3 for power calculation
+	ADD R3, R6, #0
+EXP_MULT_LOOP
+	ADD R0, R0, R0; implement multiplication R0 keeps running total
+	ADD R3, R3, #-1; decrement innerloop counter
+	BRnz POWER_LOOP
+
+ONE_POWER
+	ADD R0, R3, #0; account for case when raised to the first power
+	;code to branch to next part of the program
+ZERO_POWER
+	ADD R0, R0, #1; account for zero power case
+	;code to branch to next part of the program
 	
+	
+
 ;IN:R0, OUT:R5 (0-success, 1-fail/overflow)
 ;R3: STACK_END R4: STACK_TOP
 ;
