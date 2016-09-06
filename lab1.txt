@@ -1,0 +1,69 @@
+ ; Lab 1 
+ ; assignment: develop a code to print a value stored in a register 
+ ;             as a hexadecimal number to the monitor
+ ; algorithm: turnin each group of four bits into a digit
+ ;            calculate the corresponding ASCII character;
+ ;            print the character to the monitor
+; written by Alec Biesterfeld
+; net id: bstrfld2
+;ECE 220- section BB8
+
+ .ORIG x3000
+
+;initialize registers except for R3
+
+AND R0, R0, #0; holds value to print 
+AND R1, R1, #0; counter for characters printed
+AND R2, R2, #0; counter for the number of bits read
+AND R4, R4, #0;holds a copy of R3 contents being shifted 
+AND R5, R5, #0; holds a copy of R4 to set cc
+
+
+
+	ADD R1, R1, #4; set digit counter to 4
+OUTERLOOP 
+	ADD R1, R1, #0; set cc for R1 
+	BRz DONE
+; end program when all of R3 has been read
+	AND R4, R4, #0; clear R4
+	ADD R2, R2, #4;
+READ 	ADD R2, R2, #0; set cc for R2 
+	BRz ASCII_VAL
+	ADD R4, R4, R4; shift contents of R4 to the left
+	ADD R3, R3, #0; set cc for R3
+	BRzp ZERO_DIGIT
+	ADD R4, R4,#1; add 1 to R4 if negative value is in R3
+	BRnzp SHIFT_LEFT
+ZERO_DIGIT 
+	ADD R4, R4, #0; Add 0 to R4 if R3 is zero or positve 
+SHIFT_LEFT 
+	ADD R3, R3, R3; shift contents of R3 to the left
+	ADD R2, R2, #-1; decrement R2
+BRnzp READ
+
+ASCII_VAL 
+	ADD R5, R4, #0; copy R4 into R5
+	AND R0, R0, #0; clear R0
+	ADD R5, R5, #-9; set cc for conditional statment
+	BRnz ASCII_NUM
+	LD R6, ASCII_A
+	ADD R0, R4, R6; put the correct ascii value in R0 for letters
+	ADD R0, R0, #-10
+	BRnzp PRINT
+ASCII_NUM 
+	LD R6, ASCII_ZERO
+	ADD R0, R4, R6; put the correct ascii value in R0 for numbers
+PRINT OUT; print the character
+	ADD R1, R1, #-1; decrement outerloop counter
+	BRnzp OUTERLOOP
+
+ ; stop the computer
+ DONE HALT
+
+ ; program data section starts here
+
+ASCII_ZERO .FILL x30
+ASCII_A    .FILL x41
+
+
+ .END
