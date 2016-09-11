@@ -30,20 +30,16 @@ GETC	;Read character from keyboard to monitor
 	ADD R6, R0, R6	; compare input to space
 	BRz EVALUATE
 	OUT
+
 	
-	LD R6, NEG_ASTERIK 
-	ADD R6, R0, R6  ; compare input to asterik
-	BRnp N_PLUS   ; moves to NEG_PLUS if char entered is not asterik
-	JSR POP
-	JSR POP
 	
 N_PLUS	LD R6, NEG_PLUS 
 	ADD R6, R0, R6  ; compare input to plus
-	BRnp N_MULT ; moves to NEG_DIVIDE if char entered is not plus
+	BRnp N_MUL ; moves to NEG_DIVIDE if char entered is not plus
 	JSR PLUS
 	BRnzp EVALUATE
 
-N_MULT
+N_MUL
 	LD R6, NEG_ASTERIK
 	ADD R6, R0, R6	;
 	BRnp N_DIVIDE ;
@@ -54,37 +50,33 @@ N_DIVIDE
 	LD R6, NEG_DIVIDE
 	ADD R6, R0, R6  ; compare input to divide
 	BRnp N_SUBTRACT ; moves to NEG_SUBTRACT if char entered is not divide
-	JSR POP
-	JSR POP
 	BRnzp EVALUATE
 
 N_SUBTRACT
 	LD R6, NEG_SUBTRACT
 	ADD R6, R0, R6  ; compare input to subtract
 	BRnp N_EXPONENT ; moves to NEG_EXPONENT if char entered is not subtract
-	JSR POP
-	JSR POP
+	JSR MIN
 	BRnzp EVALUATE
 
 N_EXPONENT
 	LD R6, NEG_EXPONENT
 	ADD R6, R0, R6  ; compare input to exponent
 	BRnp N_ZERO	; moves to ASCII_A if char entered is not exponent
-	JSR POP
-	JSR POP
+	
+	BRnzp EVALUATE
 
 N_ZERO	
 	LD R6, NEG_ZERO
 
-
 ASCII_LOOP 
 	ST R6, LOOP_SAVER6
 	ADD R6, R0, R6	 	; compare input to NEG_ZERO
-	BRnp NEXT_NUMBER 	;
+	BRn  INVALID 	;
+	BRp NEXT_NUMBER
 	LD R6, NEG_NINE
-	ADD R6, R6, #-1
 	ADD R6, R0, R6
-	BRzp INVALID 
+	BRp INVALID
 
 	
 	ADD R0, R0, #-16 ; remove ascii offest
@@ -98,22 +90,50 @@ NEXT_NUMBER
 	ADD R6, R6, #-1	 ;
 	BRnzp ASCII_LOOP ;
 	
-	
+CHECK_INVALID
+	ADD R5, R5, #0;
+	BRp INVALID
+	RET		;
 
 INVALID
-	LD R0, INVALID_EXPRESSION
+	LEA R1, INVALID_EXPRESSION
+	LD R0, NEW_LINE
 	OUT
-	BRnzp DONE
+
+ERROR_MESSAGE
+		
+	LDR R0, R1, #0  ;put ascii values of the string into R0
+	BRz FINISHED	;HALT if null character is found
+	OUT
+	ADD R1, R1, #1	;increment pointer
+	BRnzp ERROR_MESSAGE
+	OUT
+
 		
 
 DONE
 	LD R0, SAVER0_EVAL
-	ADD R5, R5, R0
+	LD R3, STACK_TOP
+	LD R4, STACK_START
+	NOT R3, R3
+	ADD R3, R3, R4	;
+	BRnp INVALID
+	AND R5, R5, #0	;
+	ADD R5, R5, R0 	; copy answer into R5
 	JSR PRINT_HEX
+	
 	
 
 FINISHED
+	LD R5, PRINT_HEX_STR5
 	HALT
+
+NEW_LINE	.FILL x000A
+;;;check or underflow
+CHECK_UNDERFLOW
+	ADD R5, R5, #0
+	BRp INVALID
+	RET
 
 
 
@@ -126,8 +146,7 @@ PLUS
 	
 	ST R1, PLUS_SAVER1	
 	ST R2, PLUS_SAVER2		
-	ST R4, PLUS_SAVER4	
-	ST R5, PLUS_SAVER5	
+	ST R4, PLUS_SAVER4		
 	ST R6, PLUS_SAVER6	
 	ST R7, PLUS_SAVER7	
 
@@ -135,8 +154,13 @@ PLUS
 
 	JSR POP
 	ADD R3, R0, #0	;
+	JSR CHECK_UNDERFLOW
+	
+	
 
 	JSR POP
+	JSR CHECK_UNDERFLOW
+
 	ADD R4, R0, #0 	;
 
 	AND R0, R0, #0	;
@@ -145,12 +169,10 @@ PLUS
 
 	JSR PUSH
 
-	
 		
 	LD R1, PLUS_SAVER1	
 	LD R2, PLUS_SAVER2		
-	LD R4, PLUS_SAVER4	
-	LD R5, PLUS_SAVER5	
+	LD R4, PLUS_SAVER4		
 	LD R6, PLUS_SAVER6	
 	LD R7, PLUS_SAVER7	
 	
@@ -159,61 +181,88 @@ RET
 ;input R3, R4
 ;out R0
 MIN	
+;your code goes here
 	ST R1, PLUS_SAVER1	
 	ST R2, PLUS_SAVER2		
-	ST R4, PLUS_SAVER4	
-	ST R5, PLUS_SAVER5	
+	ST R4, PLUS_SAVER4		
 	ST R6, PLUS_SAVER6	
-	ST R7, PLUS_SAVER7
-	;your code goes here
-	NOT R3, R3
-	ADD R3, R3, #1
-	ADD R0, R3, R4
+	ST R7, PLUS_SAVER7	
+
+	
+
+	JSR POP
+	ADD R3, R0, #0	;
+	JSR CHECK_UNDERFLOW
 	
 	
-	;;save regs
+
+	JSR POP
+	JSR CHECK_UNDERFLOW
+
+	ADD R4, R0, #0 	;
+
+	AND R0, R0, #0	;
+	NOT R3, R3	;
+	ADD R3, R3, #1	; inverse R4	
+	ADD R0, R3, R4	; subtract R4 from R3 and store in R0
+
+
+	JSR PUSH
+
+		
 	LD R1, PLUS_SAVER1	
 	LD R2, PLUS_SAVER2		
-	LD R4, PLUS_SAVER4	
-	LD R5, PLUS_SAVER5	
+	LD R4, PLUS_SAVER4		
 	LD R6, PLUS_SAVER6	
 	LD R7, PLUS_SAVER7
-RET
+RET	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4
 ;out R0
-MUL
+MUL	
 	ST R1, PLUS_SAVER1	
 	ST R2, PLUS_SAVER2		
-	ST R4, PLUS_SAVER4	
-	ST R5, PLUS_SAVER5	
+	ST R4, PLUS_SAVER4		
 	ST R6, PLUS_SAVER6	
 	ST R7, PLUS_SAVER7
-;your code goes here
-	AND R0, R0, #0
-	ADD R0, R3, R0
-	
-	
-	;;save regs
+	;your code goes here
+
+	JSR POP
+	ADD R3, R0, #0	;
+	JSR CHECK_UNDERFLOW
+	AND R0, R0, #0; clear R0
+
+	JSR POP
+	JSR CHECK_UNDERFLOW
+	ADD R4, R0, #0 	;
+
+	ADD R3, R3, #0; set cc for R3
+	BRz MULT_ZERO	;multiply by zero case
+MULT_NONZERO
+	ADD R3, R3, #-1; set cc for R3 for cases other that multiply by 0
+	Brz MULT_DONE	; when multiplication counter is 0, finish subroutine
+	ADD R4, R4, R4; implement multiplication loop
+	BRnzp MULT_NONZERO
+MULT_ZERO
+	ADD R0,R0, #0; account for multiply by zero case
+	; go to next part of program
+MULT_DONE
+	ADD R0, R4, #0; place result in R0
+	JSR PUSH
+		
 	LD R1, PLUS_SAVER1	
 	LD R2, PLUS_SAVER2		
-	LD R4, PLUS_SAVER4	
-	LD R5, PLUS_SAVER5	
+	LD R4, PLUS_SAVER4		
 	LD R6, PLUS_SAVER6	
 	LD R7, PLUS_SAVER7
 RET
+	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4
 ;out R0
 	
 DIV	
-	ST R1, PLUS_SAVER1	
-	ST R2, PLUS_SAVER2		
-	ST R4, PLUS_SAVER4	
-	ST R5, PLUS_SAVER5	
-	ST R6, PLUS_SAVER6	
-	ST R7, PLUS_SAVER7
-	;insert code here
+	
 
 	AND R0, R0, 0 ; clear R0
 	ADD R0, R0, #-1
@@ -222,23 +271,7 @@ DIV
 	NOT R4, R4
 	ADD R4, R4, 1 ; R4 = -R4
 
-
-	;;save regs
-	LD R1, PLUS_SAVER1	
-	LD R2, PLUS_SAVER2		
-	LD R4, PLUS_SAVER4	
-	LD R5, PLUS_SAVER5	
-	LD R6, PLUS_SAVER6	
-	LD R7, PLUS_SAVER7
-RET
 DIVLOOP	
-	ST R1, PLUS_SAVER1	
-	ST R2, PLUS_SAVER2		
-	ST R4, PLUS_SAVER4	
-	ST R5, PLUS_SAVER5	
-	ST R6, PLUS_SAVER6	
-	ST R7, PLUS_SAVER7
-	;insert code here
 	ADD R0, R0, 1 ; increment quot
 	ADD R1, R1, R4 ; R1 = R1-R4
 	Brzp DIVLOOP
@@ -246,13 +279,8 @@ DIVLOOP
 	ADD R4, R4, #1 ; R4 is positive here
 	ADD R1, R1, R4
 
-	LD R1, PLUS_SAVER1	
-	LD R2, PLUS_SAVER2		
-	LD R4, PLUS_SAVER4	
-	LD R5, PLUS_SAVER5	
-	LD R6, PLUS_SAVER6	
-	LD R7, PLUS_SAVER7
-RET
+
+	RET
 	
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -381,6 +409,8 @@ DONE_POP
 	LD R4, POP_SaveR4	;
 	RET
 
+SAVER0_EVAL	.BLKW #1
+SAVE_7		.BLKW #1
 
 ASCII_ZERO .FILL x30
 ASCII_A    .FILL x41
@@ -414,13 +444,6 @@ PRINT_HEX_STR4	.BLKW #1
 PRINT_HEX_STR5	.BLKW #1
 PRINT_HEX_STR6	.BLKW #1
 
-PRINT_DEC_STR0	.BLKW #1
-PRINT_DEC_STR1	.BLKW #1
-PRINT_DEC_STR2	.BLKW #1
-PRINT_DEC_STR3	.BLKW #1
-PRINT_DEC_STR4	.BLKW #1
-PRINT_DEC_STR5	.BLKW #1
-PRINT_DEC_STR6	.BLKW #1
 
 PLUS_SAVER0	.BLKW #1
 PLUS_SAVER1	.BLKW #1
@@ -430,8 +453,6 @@ PLUS_SAVER4	.BLKW #1
 PLUS_SAVER5	.BLKW #1
 PLUS_SAVER6	.BLKW #1
 PLUS_SAVER7	.BLKW #1
-
-SAVER0_EVAL	.BLKW #1
 
 
 POP_SaveR3	.BLKW #1	; 
