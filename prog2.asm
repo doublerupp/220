@@ -159,24 +159,61 @@ RET
 ;input R3, R4
 ;out R0
 MIN	
-;your code goes here
+	ST R1, PLUS_SAVER1	
+	ST R2, PLUS_SAVER2		
+	ST R4, PLUS_SAVER4	
+	ST R5, PLUS_SAVER5	
+	ST R6, PLUS_SAVER6	
+	ST R7, PLUS_SAVER7
+	;your code goes here
 	NOT R3, R3
 	ADD R3, R3, #1
 	ADD R0, R3, R4
+	
+	
+	;;save regs
+	LD R1, PLUS_SAVER1	
+	LD R2, PLUS_SAVER2		
+	LD R4, PLUS_SAVER4	
+	LD R5, PLUS_SAVER5	
+	LD R6, PLUS_SAVER6	
+	LD R7, PLUS_SAVER7
+RET
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4
 ;out R0
-MUL	
+MUL
+	ST R1, PLUS_SAVER1	
+	ST R2, PLUS_SAVER2		
+	ST R4, PLUS_SAVER4	
+	ST R5, PLUS_SAVER5	
+	ST R6, PLUS_SAVER6	
+	ST R7, PLUS_SAVER7
 ;your code goes here
 	AND R0, R0, #0
 	ADD R0, R3, R0
 	
+	
+	;;save regs
+	LD R1, PLUS_SAVER1	
+	LD R2, PLUS_SAVER2		
+	LD R4, PLUS_SAVER4	
+	LD R5, PLUS_SAVER5	
+	LD R6, PLUS_SAVER6	
+	LD R7, PLUS_SAVER7
+RET
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4
 ;out R0
 	
 DIV	
-	
+	ST R1, PLUS_SAVER1	
+	ST R2, PLUS_SAVER2		
+	ST R4, PLUS_SAVER4	
+	ST R5, PLUS_SAVER5	
+	ST R6, PLUS_SAVER6	
+	ST R7, PLUS_SAVER7
+	;insert code here
 
 	AND R0, R0, 0 ; clear R0
 	ADD R0, R0, #-1
@@ -185,7 +222,23 @@ DIV
 	NOT R4, R4
 	ADD R4, R4, 1 ; R4 = -R4
 
+
+	;;save regs
+	LD R1, PLUS_SAVER1	
+	LD R2, PLUS_SAVER2		
+	LD R4, PLUS_SAVER4	
+	LD R5, PLUS_SAVER5	
+	LD R6, PLUS_SAVER6	
+	LD R7, PLUS_SAVER7
+RET
 DIVLOOP	
+	ST R1, PLUS_SAVER1	
+	ST R2, PLUS_SAVER2		
+	ST R4, PLUS_SAVER4	
+	ST R5, PLUS_SAVER5	
+	ST R6, PLUS_SAVER6	
+	ST R7, PLUS_SAVER7
+	;insert code here
 	ADD R0, R0, 1 ; increment quot
 	ADD R1, R1, R4 ; R1 = R1-R4
 	Brzp DIVLOOP
@@ -193,8 +246,13 @@ DIVLOOP
 	ADD R4, R4, #1 ; R4 is positive here
 	ADD R1, R1, R4
 
-
-	RET
+	LD R1, PLUS_SAVER1	
+	LD R2, PLUS_SAVER2		
+	LD R4, PLUS_SAVER4	
+	LD R5, PLUS_SAVER5	
+	LD R6, PLUS_SAVER6	
+	LD R7, PLUS_SAVER7
+RET
 	
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
