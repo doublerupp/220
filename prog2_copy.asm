@@ -331,9 +331,9 @@ DIV
 	ADD R3, R3, #1	;R3<- -R3
 DIV_LOOP
 	ADD R4, R3, R4	; 
+	;ADD R4, R4, #0 set cc for R4
+	BRn DONE_DIV
 	ADD R0, R0, #1 ; increment R0 for each time difference between R3 and R4 is positve
-	ADD R4, R4, #0; set cc for R4
-	BRnz DONE_DIV
 	BRnzp DIV_LOOP
 DONE_DIV
 	JSR PUSH
@@ -369,7 +369,8 @@ EXP
 	ADD R4, R0, #0 	;
 	JSR CHECK_UNDERFLOW
 	
-
+	AND R2, R2, #0; clear R2 as a temp register
+	ADD R2, R4, #0; copy R4 into R6 initially
 	AND R6, R6, #0; clear R6 as a temp register
 	AND R0, R0, #0	;clear R0
 	ADD R3, R3, #0; check value of power
@@ -378,18 +379,21 @@ EXP
 	BRz ONE_POWER
 	ADD R3, R3, #1; Restore value for R3
 	ADD R6, R4, #0; copy R4 into R6 for other uses
+	ADD R0, R6, #0;
 POWER_LOOP
 	ADD R3, R3, #-1; set cc
 	BRz DONE2	;; code to next part of program
 	AND R4, R4, #0; 
 	ADD R4, R6, #0; clear and restore R4
-	
 EXP_MULT_LOOP
-	ADD R4, R4, #0; set cc
-	BRnz POWER_LOOP
-	ADD R0, R6, R0; implement multiplication R0 keeps running total double check
-	ADD R4, R4, #-1; decrement counter
+	ADD R4, R4, #-1; set cc
+	BRnz NEXT
+	ADD R0, R0, R2;
 	BRnzp EXP_MULT_LOOP
+NEXT
+	AND R2, R2, #0; clear R2
+	ADD R2, R0, #0; copy in R0 from previous loop
+	BRnzp POWER_LOOP
 
 ONE_POWER
 	ADD R0, R4, #0; account for case when raised to the first power
