@@ -1,0 +1,94 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+double abs_double(double y)
+{
+        if(y<0)
+        {
+                y=-y;
+                
+        }
+
+    return 0;
+}
+
+double fx_val(double a, double b, double c, double d, double e, double x)
+{
+    
+    return (a*x^4+b*x^3+c*x^2+d*x+e);;
+}
+
+double fx_dval(double a, double b, double c, double d, double e, double x)
+{
+    
+    return (4*a*x^3+3*b*x^2+2*c*x+d);
+}
+
+double fx_ddval(double a, double b, double c, double d, double e, double x)
+{
+    return (12*a*x^2+6*b*x+2*c);
+}
+
+
+double newrfind_halley(double a, double b, double c, double d, double e, double x)
+{
+    double xnew, xcur
+	
+
+    return 0;
+}
+
+int rootbound(double a, double b, double c, double d, double e, double r, double l)
+{
+	 double p = a*x^4+(4*a*l+b)*x^3+(6*a*l^2+3*b*l+c)*x^2+(4*a*l^3+3*b*l^2+2*c*l+d)*x+(a*l^4+b*l^3+c*l^2+d*l+e);
+   	 return 0;
+}
+
+int main(int argc, char **argv)
+{
+	double a, b, c, d, e, l, r;
+	FILE *in;
+
+	if (argv[1] == NULL) {
+		printf("You need an input file.\n");
+		return -1;
+	}
+	in = fopen(argv[1], "r");
+	if (in == NULL)
+		return -1;
+	fscanf(in, "%lf", &a);
+	fscanf(in, "%lf", &b);
+	fscanf(in, "%lf", &c);
+	fscanf(in, "%lf", &d);
+	fscanf(in, "%lf", &e);
+	fscanf(in, "%lf", &l);
+	fscanf(in, "%lf", &r);
+    
+    //The values are read into the variable a, b, c, d, e, l and r.
+    //You have to find the bound on the number of roots using rootbound function.
+    //If it is > 0 try to find the roots using newrfind function.
+    //You may use the fval, fdval and fddval funtions accordingly in implementing the halleys's method.
+    
+    
+    fclose(in);
+
+	 int i;// i is counter, j is max number of roots
+	 int j = rootbound( a, b, c, d, e r, x)
+	while(j)
+	{	
+        	for(i=l;i<r;i+.5)
+		{
+			newrfind_halley( a,  b,  c,  d,  e,  x)
+			if(newrfind_halley==0)
+			
+	}
+
+
+
+
+
+
+    
+    return 0;
+}
